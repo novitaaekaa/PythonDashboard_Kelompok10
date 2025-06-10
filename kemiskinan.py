@@ -475,7 +475,6 @@ if data_provinsi is not None and not data_provinsi.empty:
         else:
             st.warning("Data TPAK tidak tersedia")
 
-    # TAB 4: Kemiskinan
     with tab4:
         st.markdown("### 💰 Kemiskinan")
     
