@@ -475,175 +475,172 @@ if data_provinsi is not None and not data_provinsi.empty:
         else:
             st.warning("Data TPAK tidak tersedia")
 
-with tab4:
-    st.markdown("### 💰 Kemiskinan")
+    with tab4:
+        st.markdown("### 💰 Kemiskinan")
     
-    # Poverty bar chart dengan pengecekan kolom
-    poverty_col = None
-    possible_poverty_cols = ['PENDUDUK_MISKIN', 'MISKIN', 'POVERTY']
-    for col in possible_poverty_cols:
-        if col in filtered_data.columns:
-            poverty_col = col
-            break
+        # Poverty bar chart dengan pengecekan kolom
+        poverty_col = None
+        possible_poverty_cols = ['PENDUDUK_MISKIN', 'MISKIN', 'POVERTY']
+        for col in possible_poverty_cols:
+            if col in filtered_data.columns:
+                poverty_col = col
+                break
     
-    if poverty_col:
-        # Gunakan sort_order yang sama seperti di tab2 untuk mengatur ascending/descending
-        sorted_poverty_data = filtered_data.sort_values(poverty_col, ascending=(sort_order == "Ascending"))
+        if poverty_col:
+            # Gunakan sort_order yang sama seperti di tab2 untuk mengatur ascending/descending
+            sorted_poverty_data = filtered_data.sort_values(poverty_col, ascending=(sort_order == "Ascending"))
         
-        fig_poverty = px.bar(
-            sorted_poverty_data.head(10),
-            x=poverty_col,
-            y="PROVINSI",
-            orientation='h',
-            title=f"Top 10 Provinsi - {poverty_col}",
-            color=poverty_col,
-            color_continuous_scale="Blues"
-        )
-        fig_poverty.update_layout(height=500)
-        st.plotly_chart(fig_poverty, use_container_width=True)
+            fig_poverty = px.bar(
+                sorted_poverty_data.head(10),
+                x=poverty_col,
+                y="PROVINSI",
+                orientation='h',
+                title=f"Top 10 Provinsi - {poverty_col}",
+                color=poverty_col,
+                color_continuous_scale="Blues"
+            )
+            fig_poverty.update_layout(height=500)
+            st.plotly_chart(fig_poverty, use_container_width=True)
         
-        # Detail kabupaten/kota jika data tersedia
-        if data_kabkota is not None and not data_kabkota.empty:
-            st.markdown("#### 🏘️ Detail Kabupaten/Kota")
+            # Detail kabupaten/kota jika data tersedia
+            if data_kabkota is not None and not data_kabkota.empty:
+                st.markdown("#### 🏘️ Detail Kabupaten/Kota")
             
-            # Interactive kabupaten/kota selector
-            prov_col = None
-            for col in data_kabkota.columns:
-                if 'PROVINSI' in col.upper() or 'PROV' in col.upper():
-                    prov_col = col
-                    break
+                # Interactive kabupaten/kota selector
+                prov_col = None
+                for col in data_kabkota.columns:
+                    if 'PROVINSI' in col.upper() or 'PROV' in col.upper():
+                        prov_col = col
+                        break
             
-            if prov_col:
-                available_provinces = data_kabkota[prov_col].unique()
-                selected_prov_detail = st.selectbox(
-                    "Pilih Provinsi untuk Detail Kabupaten/Kota",
-                    options=available_provinces
-                )
-                
-                # Filter kabkota data
-                kabkota_filtered = data_kabkota[data_kabkota[prov_col] == selected_prov_detail]
-                
-                if not kabkota_filtered.empty:
-                    # Identify the correct columns
-                    kab_col = None
-                    kabkota_poverty_col = None
-                    
-                    for col in data_kabkota.columns:
-                        if 'KAB' in col.upper() or 'KOTA' in col.upper():
-                            kab_col = col
-                        if 'MISKIN' in col.upper() or 'KEMISKINAN' in col.upper():
-                            kabkota_poverty_col = col
-                    
-                    if kab_col and kabkota_poverty_col:
-                        fig_kabkota = px.bar(
-                            kabkota_filtered.head(15),
-                            x=kab_col,
-                            y=kabkota_poverty_col,
-                            color=kabkota_poverty_col,
-                            title=f"Tingkat Kemiskinan di Kabupaten/Kota - {selected_prov_detail}",
-                            color_continuous_scale="Reds",
-                            text=kabkota_poverty_col
-                        )
-                        fig_kabkota.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-                        fig_kabkota.update_layout(xaxis_tickangle=-45, height=400)
-                        st.plotly_chart(fig_kabkota, use_container_width=True)
-                        
-                    else:
-                        st.warning("Kolom kabupaten/kota atau kemiskinan tidak ditemukan")
-                else:
-                    st.warning(f"Tidak ada data kabupaten/kota untuk {selected_prov_detail}")
-            else:
-                st.warning("Data kabupaten/kota tidak memiliki kolom PROVINSI")
-        else:
-            st.info("Data detail kabupaten/kota tidak tersedia")
-    else:
-        st.warning("Kolom penduduk miskin tidak ditemukan")
-
-with tab5:
-    st.markdown("### 📊 Boxplot")
-    
-    # Box plot
-    if box_filter:
-        fig_box = px.box(
-            filtered_data,
-            y=box_filter,
-            title=f"Distribusi Data: {box_filter}",
-            color_discrete_sequence=["#74b9ff"]
-        )
-        fig_box.update_layout(height=400)
-        st.plotly_chart(fig_box, use_container_width=True)
-        
-        
-    else:
-        st.info("Pilih variabel untuk menampilkan boxplot dari sidebar")
-
-with tab6:
-    st.markdown("### 🎓 Angka Partisipasi Sekolah")
-    
-    # Interactive provinsi selector (sama seperti di tab4)
-    available_provinces_aps = sorted(filtered_data["PROVINSI"].unique())
-    selected_prov_aps = st.selectbox(
-        "Pilih Provinsi untuk Detail Angka Partisipasi Sekolah",
-        options=available_provinces_aps
-    )
-    
-    if selected_prov_aps:
-        # Filter data berdasarkan provinsi yang dipilih
-        aps_data = filtered_data[filtered_data["PROVINSI"] == selected_prov_aps]
-        
-        if not aps_data.empty:
-            # Ambil data dari provinsi yang dipilih
-            selected_province = aps_data.iloc[0]
-            
-            # Definisi kolom APS berdasarkan posisi (kolom 7-12, 13-15, 16-18, 19-23)
-            # Asumsi kolom dimulai dari index 0 (PROVINSI = kolom 0)
-            try:
-                # Ambil nilai dari kolom yang sesuai (disesuaikan dengan struktur data aktual)
-                aps_categories = []
-                aps_values = []
-                
-                # Cari kolom yang mengandung kata kunci APS atau rentang usia
-                for col in filtered_data.columns:
-                    if any(keyword in col.upper() for keyword in ['7-12', '13-15', '16-18', '19-23', 'APS']):
-                        if col in selected_province.index and pd.notna(selected_province[col]):
-                            aps_categories.append(col)
-                            aps_values.append(float(selected_province[col]))
-                
-                if aps_categories and aps_values:
-                    # Buat DataFrame untuk pie chart
-                    aps_df = pd.DataFrame({
-                        'Kategori': aps_categories,
-                        'Nilai': aps_values
-                    })
-                    
-                    # Pie chart
-                    fig_pie = px.pie(
-                        aps_df,
-                        values='Nilai',
-                        names='Kategori',
-                        title=f"Angka Partisipasi Sekolah - {selected_province['PROVINSI']}",
-                        color_discrete_sequence=px.colors.qualitative.Set3
+                if prov_col:
+                    available_provinces = data_kabkota[prov_col].unique()
+                    selected_prov_detail = st.selectbox(
+                        "Pilih Provinsi untuk Detail Kabupaten/Kota",
+                        options=available_provinces
                     )
-                    fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-                    fig_pie.update_layout(height=500)
-                    st.plotly_chart(fig_pie, use_container_width=True)
+                
+                    # Filter kabkota data
+                    kabkota_filtered = data_kabkota[data_kabkota[prov_col] == selected_prov_detail]
+                
+                    if not kabkota_filtered.empty:
+                        # Identify the correct columns
+                        kab_col = None
+                        kabkota_poverty_col = None
                     
+                        for col in data_kabkota.columns:
+                            if 'KAB' in col.upper() or 'KOTA' in col.upper():
+                                kab_col = col
+                            if 'MISKIN' in col.upper() or 'KEMISKINAN' in col.upper():
+                                kabkota_poverty_col = col
                     
-                else:
-                    st.warning("Data APS tidak ditemukan untuk provinsi yang dipilih. Pastikan kolom APS tersedia dengan format yang benar.")
-                    
-                    # Debug info
-                    with st.expander("🔍 Debug: Kolom yang tersedia"):
-                        st.write("Kolom dalam data:", list(filtered_data.columns))
-                        st.write("Data provinsi yang dipilih:", selected_province.to_dict())
+                        if kab_col and kabkota_poverty_col:
+                            fig_kabkota = px.bar(
+                                kabkota_filtered.head(15),
+                                x=kab_col,
+                                y=kabkota_poverty_col,
+                                color=kabkota_poverty_col,
+                                title=f"Tingkat Kemiskinan di Kabupaten/Kota - {selected_prov_detail}",
+                                color_continuous_scale="Reds",
+                                text=kabkota_poverty_col
+                            )
+                            fig_kabkota.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+                            fig_kabkota.update_layout(xaxis_tickangle=-45, height=400)
+                            st.plotly_chart(fig_kabkota, use_container_width=True)
                         
-            except Exception as e:
-                st.error(f"Error dalam memproses data APS: {str(e)}")
-                st.info("Pastikan data APS dalam format numerik yang valid")
+                        else:
+                            st.warning("Kolom kabupaten/kota atau kemiskinan tidak ditemukan")
+                    else:
+                        st.warning(f"Tidak ada data kabupaten/kota untuk {selected_prov_detail}")
+                else:
+                    st.warning("Data kabupaten/kota tidak memiliki kolom PROVINSI")
+            else:
+                st.info("Data detail kabupaten/kota tidak tersedia")
         else:
-            st.warning(f"Provinsi '{selected_prov_aps}' tidak ditemukan")
-    else:
-        st.info("Pilih provinsi untuk melihat data Angka Partisipasi Sekolah")
+            st.warning("Kolom penduduk miskin tidak ditemukan")
+
+    with tab5:
+        st.markdown("### 📊 Boxplot")
+    
+        # Box plot
+        if box_filter:
+            fig_box = px.box(
+                filtered_data,
+                y=box_filter,
+                title=f"Distribusi Data: {box_filter}",
+                color_discrete_sequence=["#74b9ff"]
+            )
+            fig_box.update_layout(height=400)
+            st.plotly_chart(fig_box, use_container_width=True)
+        
+        
+        else:
+            st.info("Pilih variabel untuk menampilkan boxplot dari sidebar")
+
+    with tab6:
+        st.markdown("### 🎓 Angka Partisipasi Sekolah")
+    
+        # Interactive provinsi selector (sama seperti di tab4)
+        available_provinces_aps = sorted(filtered_data["PROVINSI"].unique())
+        selected_prov_aps = st.selectbox(
+            "Pilih Provinsi untuk Detail Angka Partisipasi Sekolah",
+            options=available_provinces_aps
+        )
+    
+        if selected_prov_aps:
+            # Filter data berdasarkan provinsi yang dipilih
+            aps_data = filtered_data[filtered_data["PROVINSI"] == selected_prov_aps]
+        
+            if not aps_data.empty:
+                # Ambil data dari provinsi yang dipilih
+                selected_province = aps_data.iloc[0]
+            
+                # Definisi kolom APS berdasarkan posisi (kolom 7-12, 13-15, 16-18, 19-23)
+                # Asumsi kolom dimulai dari index 0 (PROVINSI = kolom 0)
+                try:
+                    # Ambil nilai dari kolom yang sesuai (disesuaikan dengan struktur data aktual)
+                    aps_categories = []
+                    aps_values = []
+                
+                    # Cari kolom yang mengandung kata kunci APS atau rentang usia
+                    for col in filtered_data.columns:
+                        if any(keyword in col.upper() for keyword in ['7-12', '13-15', '16-18', '19-23', 'APS']):
+                            if col in selected_province.index and pd.notna(selected_province[col]):
+                                aps_categories.append(col)
+                                aps_values.append(float(selected_province[col]))
+                
+                    if aps_categories and aps_values:
+                        # Buat DataFrame untuk pie chart
+                        aps_df = pd.DataFrame({
+                            'Kategori': aps_categories,
+                            'Nilai': aps_values
+                        })
+                    
+                        # Pie chart
+                        fig_pie = px.pie(
+                            aps_df,
+                            values='Nilai',
+                            names='Kategori',
+                            title=f"Angka Partisipasi Sekolah - {selected_province['PROVINSI']}",
+                            color_discrete_sequence=px.colors.qualitative.Set3
+                        )
+                        fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+                        fig_pie.update_layout(height=500)
+                        st.plotly_chart(fig_pie, use_container_width=True)
+                    
+                    
+                    else:
+                        st.warning("Data APS tidak ditemukan untuk provinsi yang dipilih. Pastikan kolom APS tersedia dengan format yang benar.")
+                    
+                        
+                        
+                except Exception as e:
+                    st.error(f"Error dalam memproses data APS: {str(e)}")
+                    st.info("Pastikan data APS dalam format numerik yang valid")
+            else:
+                st.warning(f"Provinsi '{selected_prov_aps}' tidak ditemukan")
+        else:
+            st.info("Pilih provinsi untuk melihat data Angka Partisipasi Sekolah")
 
 # -------------------------------
 # Footer
@@ -653,7 +650,7 @@ st.markdown(
     """
     <div style='text-align: center; color: #666;'>
     <p>Dashboard Kemiskinan Indonesia 2024 | Dibuat oleh Kelompok 10</p>
-    <p>Ana (NIM) | Damai (NIM) | Novita Eka Permatasari (M0722060)</p>
+    <p>Ana Rovidhoh (M0722010) | Bernadeta Chrisma Damai S (M0722025) | Novita Eka Permatasari (M0722060)</p>
     <p>Data source: BPS Indonesia | Last updated: """ + datetime.now().strftime("%d %B %Y, %H:%M") + """</p>
     </div>
     """, 
