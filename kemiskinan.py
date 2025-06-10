@@ -328,17 +328,23 @@ if data_provinsi is not None and not data_provinsi.empty:
                                 center=dict(lat=-2.5, lon=118)  # Pusat Indonesia
                             )
                             
-                            # Update layout untuk peta yang lebih baik
+                            # PERBAIKAN UTAMA: Update layout untuk peta yang lebih baik dengan PROPER colorbar
                             fig_map.update_layout(
                                 height=600,
                                 margin=dict(r=0, t=50, l=0, b=0),
+                                # FIXED: Gunakan struktur yang benar untuk colorbar
                                 coloraxis_colorbar=dict(
-                                    title="Penduduk Miskin<br>(Ribu)",
-                                    titleside="right",
+                                    title=dict(
+                                        text="Penduduk Miskin<br>(Ribu)",
+                                        side="right"  # Gunakan "side" bukan "titleside"
+                                    ),
                                     len=0.7,
-                                    thickness=15
+                                    thickness=15,
+                                    x=1.02,  # Posisi colorbar
+                                    xanchor="left"
                                 ),
                                 title=dict(
+                                    text=f'Peta Kemiskinan Indonesia - {len(map_data)} Provinsi',
                                     x=0.5,
                                     font=dict(size=18, color='darkblue'),
                                     pad=dict(t=20)
