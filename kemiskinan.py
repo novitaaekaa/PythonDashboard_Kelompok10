@@ -416,64 +416,64 @@ if data_provinsi is not None and not data_provinsi.empty:
         else:
             st.warning("Kolom 'TPT (%)' tidak ditemukan")
 
-with tab3:
-    st.markdown("### 👥 Analisis TPAK Berdasarkan Jenis Kelamin")
+    with tab3:
+        st.markdown("### 👥 Analisis TPAK Berdasarkan Jenis Kelamin")
     
-    if data_tpak is not None and not data_tpak.empty:
-        # Tampilkan struktur data TPAK untuk debugging
-        with st.expander("🔍 Debug: Struktur Data TPAK"):
-            st.write("**Kolom dalam data TPAK:**")
-            st.write(list(data_tpak.columns))
-            st.write("**Sample data TPAK:**")
-            st.dataframe(data_tpak.head())
+        if data_tpak is not None and not data_tpak.empty:
+            # Tampilkan struktur data TPAK untuk debugging
+            with st.expander("🔍 Debug: Struktur Data TPAK"):
+                st.write("**Kolom dalam data TPAK:**")
+                st.write(list(data_tpak.columns))
+                st.write("**Sample data TPAK:**")
+                st.dataframe(data_tpak.head())
         
-        # Cek apakah kolom yang dibutuhkan ada
-        required_cols = ['PROVINSI', 'LAKI-LAKI', 'PEREMPUAN']
-        missing_cols = [col for col in required_cols if col not in data_tpak.columns]
+            # Cek apakah kolom yang dibutuhkan ada
+            required_cols = ['PROVINSI', 'LAKI-LAKI', 'PEREMPUAN']
+            missing_cols = [col for col in required_cols if col not in data_tpak.columns]
         
-        if not missing_cols:
-            # Pastikan data numerik
-            try:
-                data_tpak['LAKI-LAKI'] = pd.to_numeric(data_tpak['LAKI-LAKI'], errors='coerce')
-                data_tpak['PEREMPUAN'] = pd.to_numeric(data_tpak['PEREMPUAN'], errors='coerce')
+            if not missing_cols:
+                # Pastikan data numerik
+                try:
+                    data_tpak['LAKI-LAKI'] = pd.to_numeric(data_tpak['LAKI-LAKI'], errors='coerce')
+                    data_tpak['PEREMPUAN'] = pd.to_numeric(data_tpak['PEREMPUAN'], errors='coerce')
                 
-                # Remove rows with NaN values
-                data_tpak_clean = data_tpak.dropna(subset=['LAKI-LAKI', 'PEREMPUAN'])
+                    # Remove rows with NaN values
+                    data_tpak_clean = data_tpak.dropna(subset=['LAKI-LAKI', 'PEREMPUAN'])
                 
-                if data_tpak_clean.empty:
-                    st.error("Data TPAK tidak valid - semua nilai kosong atau non-numerik")
-                else:
-                    # Line chart perbandingan TPAK
-                    fig_tpak_line = px.line(
-                        data_tpak_clean,
-                        x="PROVINSI",
-                        y=["LAKI-LAKI", "PEREMPUAN"],
-                        title="Perbandingan TPAK Laki-laki vs Perempuan per Provinsi",
-                        labels={'value': 'TPAK (%)', 'PROVINSI': 'Provinsi', 'variable': 'Jenis Kelamin'},
-                        color_discrete_map={'LAKI-LAKI': '#3498db', 'PEREMPUAN': '#e74c3c'},
-                        height=600,
-                        markers=True
-                    )
-                    fig_tpak_line.update_layout(
-                        xaxis_tickangle=-45,
-                        xaxis_title="Provinsi",
-                        yaxis_title="TPAK (%)",
-                        legend_title="Jenis Kelamin"
-                    )
-                    fig_tpak_line.update_traces(mode='lines+markers', line=dict(width=3), marker=dict(size=8))
-                    st.plotly_chart(fig_tpak_line, use_container_width=True)
+                    if data_tpak_clean.empty:
+                        st.error("Data TPAK tidak valid - semua nilai kosong atau non-numerik")
+                    else:
+                        # Line chart perbandingan TPAK
+                        fig_tpak_line = px.line(
+                            data_tpak_clean,
+                            x="PROVINSI",
+                            y=["LAKI-LAKI", "PEREMPUAN"],
+                            title="Perbandingan TPAK Laki-laki vs Perempuan per Provinsi",
+                            labels={'value': 'TPAK (%)', 'PROVINSI': 'Provinsi', 'variable': 'Jenis Kelamin'},
+                            color_discrete_map={'LAKI-LAKI': '#3498db', 'PEREMPUAN': '#e74c3c'},
+                            height=600,
+                            markers=True
+                        )
+                        fig_tpak_line.update_layout(
+                            xaxis_tickangle=-45,
+                            xaxis_title="Provinsi",
+                            yaxis_title="TPAK (%)",
+                            legend_title="Jenis Kelamin"
+                        )
+                        fig_tpak_line.update_traces(mode='lines+markers', line=dict(width=3), marker=dict(size=8))
+                        st.plotly_chart(fig_tpak_line, use_container_width=True)
                     
                     
-            except Exception as e:
-                st.error(f"Error dalam memproses data TPAK: {str(e)}")
-                st.info("Pastikan kolom LAKI-LAKI dan PEREMPUAN berisi data numerik yang valid")
+                except Exception as e:
+                    st.error(f"Error dalam memproses data TPAK: {str(e)}")
+                    st.info("Pastikan kolom LAKI-LAKI dan PEREMPUAN berisi data numerik yang valid")
             
+            else:
+                st.error(f"Kolom yang dibutuhkan tidak ditemukan: {missing_cols}")
+                st.info("Pastikan sheet TPAK_JENISKELAMIN memiliki kolom: PROVINSI, LAKI-LAKI, PEREMPUAN")
+                st.write("**Kolom yang tersedia:**", list(data_tpak.columns))
         else:
-            st.error(f"Kolom yang dibutuhkan tidak ditemukan: {missing_cols}")
-            st.info("Pastikan sheet TPAK_JENISKELAMIN memiliki kolom: PROVINSI, LAKI-LAKI, PEREMPUAN")
-            st.write("**Kolom yang tersedia:**", list(data_tpak.columns))
-    else:
-        st.warning("Data TPAK tidak tersedia")
+            st.warning("Data TPAK tidak tersedia")
 
 with tab4:
     st.markdown("### 💰 Kemiskinan")
