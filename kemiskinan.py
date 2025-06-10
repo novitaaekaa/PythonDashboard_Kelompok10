@@ -475,6 +475,7 @@ if data_provinsi is not None and not data_provinsi.empty:
         else:
             st.warning("Data TPAK tidak tersedia")
 
+    # TAB 4: Kemiskinan
     with tab4:
         st.markdown("### 💰 Kemiskinan")
     
@@ -558,7 +559,7 @@ if data_provinsi is not None and not data_provinsi.empty:
                 st.info("Data detail kabupaten/kota tidak tersedia")
         else:
             st.warning("Kolom penduduk miskin tidak ditemukan")
-
+            
     with tab5:
         st.markdown("### 📊 Boxplot")
     
