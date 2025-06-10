@@ -92,7 +92,7 @@ def load_data_direct():
     """Load data langsung dari file Excel dengan path yang telah ditentukan"""
     
     # Gunakan path relatif atau path absolut
-    file_path = r"D:\data_python.xlsx"  # Path absolut yang sudah ditentukan
+    file_path = 'data_python.xlsx'  # Path absolut yang sudah ditentukan
     
     try:
         # Load semua sheets dari file Excel
